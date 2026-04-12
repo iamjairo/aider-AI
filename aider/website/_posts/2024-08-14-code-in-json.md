@@ -15,7 +15,7 @@ LLMs produce lower quality code if they’re asked to return it as part of a str
 they write, related to quoting and escaping it into JSON.
 The benchmark results also imply a decreased capacity for solving coding problems due to the burden of JSON formatting. 
 
-{% include code-in-json-benchmark.js %}
+{% include code-in-json-benchmark.html %}
 
 > Figure 1: Aider coding benchmark scores of models using either plain markdown text or JSON to return code.
 > Pass rate (%) averaged over 5 runs.
@@ -213,7 +213,7 @@ That would correctly escape the single-quote inside the single-quoted string.
 
 
 
-{% include code-in-json-syntax.js %}
+{% include code-in-json-syntax.html %}
 
 > Figure 2: Number of `SyntaxError` and `IndentationError` errors found in model generated code,
 > totaled from 5 runs.

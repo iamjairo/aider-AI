@@ -1,12 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
   var ctx = document.getElementById('qwqChart').getContext('2d');
-  var allData = [];
-  {% for row in site.data.qwq %}
-    allData.push({
-      model: '{{ row.model }}',
-      pass_rate_2: {{ row.pass_rate_2 }}
-    });
-  {% endfor %}
+  var allData = JSON.parse(`{{ site.data.qwq | jsonify }}`);
 
   // Sort data by pass_rate_2 in descending order
   allData.sort((a, b) => b.pass_rate_2 - a.pass_rate_2);

@@ -8,16 +8,16 @@
 </style>
 
 <div class="chart-container">
-    <canvas id="syntaxErrorsChart"></canvas>
+    <canvas id="passRateChart"></canvas>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var ctx = document.getElementById('syntaxErrorsChart').getContext('2d');
+    var ctx = document.getElementById('passRateChart').getContext('2d');
     var chartContainer = document.querySelector('.chart-container');
     
-    var yamlData = {{ site.data.code-in-json | jsonify }};
+    var yamlData = JSON.parse(`{{ site.data.code-in-json | jsonify }}`);
     
     var models = [...new Set(yamlData.map(item => item.model))].sort();
     var editFormats = [...new Set(yamlData.map(item => item.edit_format))];
@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', function () {
         data: models.map(model => {
             var items = yamlData.filter(d => d.model === model && d.edit_format === format);
             if (items.length === 0) return null;
-            var totalErrors = items.reduce((sum, item) => sum + item.syntax_errors + item.indentation_errors, 0);
-            return totalErrors;
+            var average = items.reduce((sum, item) => sum + item.pass_rate_1, 0) / items.length;
+            return parseFloat(average.toFixed(1));
         }),
         backgroundColor: function(context) {
             const format = context.dataset.label;
@@ -73,15 +73,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Total syntax errors from 5 runs'
+                        text: 'Pass Rate (%, average of 5 runs)'
                     },
-                    max: 35
+                    max: 70
                 }
             },
             plugins: {
                 title: {
                     display: true,
-                    text: 'Syntax errors by model and code wrapping strategy',
+                    text: 'Coding skill by model and code wrapping strategy',
                     font: {
                         size: 16
                     }
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 label += ': ';
                             }
                             if (context.parsed.y !== null) {
-                                label += context.parsed.y;
+                                label += context.parsed.y.toFixed(1) + '%';
                             }
                             return label;
                         }
@@ -108,18 +108,22 @@ document.addEventListener('DOMContentLoaded', function () {
         plugins: [{
             afterDraw: function(chart) {
                 var ctx = chart.ctx;
-                chart.data.datasets.forEach(function(dataset, i) {
-                    var meta = chart.getDatasetMeta(i);
-                    meta.data.forEach(function(bar, index) {
-                        var data = dataset.data[index];
-                        if (data !== null) {
-                            ctx.fillStyle = '#000000';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'bottom';
-                            ctx.fillText(data, bar.x, bar.y - 5);
-                        }
+                var isWideScreen = window.innerWidth > 768; // Assuming 768px as the breakpoint for wide screens
+                if (isWideScreen) {
+                    chart.data.datasets.forEach(function(dataset, i) {
+                        var meta = chart.getDatasetMeta(i);
+                        meta.data.forEach(function(bar, index) {
+                            var data = dataset.data[index];
+                            if (data !== null) {
+                                ctx.fillStyle = '#000000';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                var displayText = data.toFixed(1) + '%';
+                                ctx.fillText(displayText, bar.x, bar.y - 5);
+                            }
+                        });
                     });
-                });
+                }
             }
         }]
     };
@@ -136,4 +140,26 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initial resize to set correct size
     resizeChart();
 });
+
+function createStripedCanvas(isStrict) {
+    const patternCanvas = document.createElement('canvas');
+    const patternContext = patternCanvas.getContext('2d');
+    const size = 10;
+    patternCanvas.width = size;
+    patternCanvas.height = size;
+
+    patternContext.fillStyle = 'rgba(255, 99, 132, 0.8)';
+    patternContext.fillRect(0, 0, size, size);
+
+    if (isStrict) {
+        patternContext.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        patternContext.lineWidth = 0.75;
+        patternContext.beginPath();
+        patternContext.moveTo(0, 0);
+        patternContext.lineTo(size, size);
+        patternContext.stroke();
+    }
+
+    return patternCanvas;
+}
 </script>
