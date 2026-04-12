@@ -40,16 +40,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }]
   };
 
-  var allData = [];
-  {% for row in data_source %}
-    allData.push({
-      model: '{{ row.model }}',
-      pass_rate: {{ row[pass_rate_field] }},
-      percent_cases_well_formed: {{ row.percent_cases_well_formed }},
-      edit_format: '{{ row.edit_format | default: "diff" }}',
-      total_cost: {{ row.total_cost | default: 0 }}
-    });
-  {% endfor %}
+  const passRateField = JSON.parse(`{{ pass_rate_field | jsonify }}`);
+  var allData = JSON.parse(`{{ data_source | jsonify }}`).map((row) => ({
+    model: row.model,
+    pass_rate: row[passRateField],
+    percent_cases_well_formed: row.percent_cases_well_formed,
+    edit_format: row.edit_format || 'diff',
+    total_cost: row.total_cost || 0
+  }));
 
   function updateChart() {
     var selectedRows = document.querySelectorAll('tr.selected');
@@ -116,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
     options: {
       plugins: {
         legend: {
-          display: {% if show_legend == false %}false{% else %}true{% endif %},
+          display: JSON.parse(`{{ show_legend | default: true | jsonify }}`),
           labels: {
             generateLabels: function(chart) {
               return [
