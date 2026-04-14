@@ -52,7 +52,7 @@ pycparser==3.0
 pygments==2.19.2
 pyparsing==3.3.2
 pyproject-hooks==1.2.0
-pytest==9.0.2
+pytest==9.0.3
 pytest-cov==7.0.0
 pytest-env==1.6.0
 python-dateutil==2.9.0.post0
