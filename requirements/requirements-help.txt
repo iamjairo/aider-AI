@@ -9,7 +9,7 @@ annotated-types==0.7.0
 anyio==4.12.1
 async-timeout==5.0.1
 attrs==25.4.0
-banks==2.4.1
+banks==2.4.2
 certifi==2026.2.25
 charset-normalizer==3.4.6
 click==8.3.1
